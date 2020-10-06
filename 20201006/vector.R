@@ -29,9 +29,10 @@ set.seed(100)
 runif(10,min=1,max=25)
 runif(10,min=1,max=25)
 set.seed(100)
+runif(10,min=1,max=25)
+
 r50 <-runif(50,min=1,max=25)
-
-
+#Use the summary function to get some details
 summary(r50)
 mean(r50)
 #Other numeric functions for a vector. 
@@ -49,102 +50,103 @@ c3 <- c(c1,c2)
 c3
   
   
-c4 <- c(rep('DCM',10),rep('HCM',15),rep('NF',20),rep('nonfail',5))
-c4
+groups <- c(rep('DCM',10),rep('HCM',15),rep('NF',20),rep('nonfail',5))
+groups
 
 #Create a random vector of chars, I'll explain the factor function later. 
-groups <- c('DCM','HCM','NF')
-c4.a <- sample(groups,50,replace=T)
-summary(factor(c4.a))
-c4.b<-sample(groups,50,replace=T, prob = c(.2,.3,.5))
-summary(factor(c4.b))
+
+groups.a <- sample(c('DCM','HCM','NF'),50,replace=T)
+summary(factor(groups.a))
+groups.b<-sample(groups,50,replace=T, prob = c(.2,.3,.5))
+summary(factor(groups.b))
 
         
 
 #Create a logical vector         
 
-d <- c(T,F,F,T,T)
-d
+logical <- c(T,F,F,T,T)
+logical
 
 #What if we tried to sum a char vector
-sum(c)
+sum(groups)
 
-#What happens when we do a boolean?
-sum(d)
+#What happens when we do a logical?
+sum(logical)
 
-#We can make boolean vecotrs with a comparison
-b > 5
-b >= 5
-b == 5
+#We can make logical vectors with a comparison
+r50 > 5
+r50 >= 5
+r50 == 5
 #Then 
-sum(r50>5)
+sum(r50>10)
 
 sum(r50 > mean(r50))
 
 #Can we do the same for chars? yes
-c4=="HCM"
+groups=="HCM"
 
-sum(c4=='HCM')
+sum(groups=='HCM')
 
-c4[2:5]
+#Selecting elements from a char vector. 
 
-c4[c4=='HCM']
+groups[2:5]
+groups[groups=='HCM']
 
 #Using the 'or' and 'and' operator. 
-c4[c4=='HCM' | c4=='DCM']
-c4[c4=='HCM' & c4=='DCM']
+groups[groups=='HCM' | groups=='DCM']
+groups[groups=='HCM' & groups=='DCM']
 
 #The 'in' operator 
 
-c4[c4 %in% c('HCM','DCM')]
+groups[groups %in% c('HCM','DCM')]
 
 #The not operator 
-c4[c4 != 'NF']
+groups[groups != 'NF']
 
 
 #Let's use a comparisons to fix the nonfail label
 
-c4[c4=='nonfail']
+groups[groups=='nonfail']
 
-c4[c4=='nonfail'] <- 'NF'
+groups[groups=='nonfail'] <- 'NF'
 
-sum(c4=='nonfail')
+sum(groups=='nonfail')
 
 
 
-#We can rendonlyt sample a vector as well. 
+#We can randomly sample a vector as well. 
 set.seed(10)
-sample(c4,15)
+sample(groups,15)
 set.seed(10)
-sample(c4,15)
+sample(groups,15)
 
 
-#Cannot mix data types. 
-C(1,2,'DCM')
+#Waht can't we do,Cannot mix data types. 
+C(1,2,'DCM',F)
 
 #But if we make the numbers chars we can. 
-c('1','2','DCM')
-
+c('1','2','DCM','F')
 
 
 
 # Factors ----------------------------------------------------------------
 
 
-c5 <- factor(c4)
-c5
+groups.factor <- factor(groups)
+groups.factor
 
-as.numeric(c4)
-as.numeric(c5)
+as.numeric(groups)
+as.numeric(groups.factor)
 
-plot(c5,r50)
+plot(groups.factor,r50)
 
 #reorder the factor to have the order we want on the x sxis
-c5 <- factor(c4,levels = c('NF','HCM','DCM'))
-c5
-plot(c5,r50)
+groups.factor <- factor(groups,levels = c('NF','HCM','DCM'))
+groups.factor
+plot(groups.factor,r50)
 
-t.test(r50[c5=='NF'],r50[c5=='HCM'],var.equal = T)
+
+t.test(r50[groups.factor=='NF'],r50[groups.factor=='HCM'],var.equal = T)
 
 
 # NAs ---------------------------------------------------------------------
