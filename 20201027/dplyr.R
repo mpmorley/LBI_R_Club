@@ -7,13 +7,13 @@ df <- read_csv('20201027/testData.csv')
 
 # Select: Subset variable (columns) ------------------------------------------------------------------
 #single column
-select(df,NPPA)
+select(df,Afib)
 #Range of cols
 select(df,id:etiology)
 #remove a col
 select(df,-DOB)
 
-select(df,starts_with('N'))
+select(df,starts_with('A'))
 
 
 
@@ -24,17 +24,18 @@ filter(df,sex=='F')
 filter(df,sex=='F' & Afib==TRUE)
 
 
+
 # Pipes -------------------------------------------------------------------
 # %>% is called a pipe 
 #Pipes send the output of one function as the first argument to the next function. 
-df %>% select(sex,NPPA) %>%
+
+df %>% select(sex,Afib) %>%
   filter(sex=='F')
 
 
 # Mutate ------------------------------------------------------------------
 df <- df %>% 
-  mutate(DOB=parse_date_time(DOB, orders = c('mdy', 'dmy')),
-         BMI=
+  mutate(DOB=parse_date_time(DOB, orders = c('mdy', 'dmy'))
          )
 
 df %>%
@@ -58,23 +59,28 @@ df %>%
 
 # ArrangeS Sort column by observations ------------------------------------------------------------------
 
+df %>% arrange(-wt_kg)
+df %>% arrange(wt_kg)
+df %>% arrange(etiology,-wt_kg) %>% head(n=5)
 
 
-# sumnmarize --------------------------------------------------------------
+# summarize --------------------------------------------------------------
 
-df %>% summarise(mean(NPPA),sd(NPPA))
+df %>% summarise(mean(ht_in),sd(ht_in))
+
+df %>% summarise(mean_ht=mean(ht_in),sd_ht=sd(ht_in))
 
 
 # group_by ----------------------------------------------------------------
 
 df %>% group_by(etiology) %>%
-  summarise(mean(NPPA),sd(NPPA))
+  summarise(mean(ht_in),sd(ht_in))
 
 df %>% group_by(etiology,Afib) %>%
-  summarise(mean(NPPA),sd(NPPA))
+  summarise(mean(ht_in),sd(ht_in))
 
 df %>% group_by(sex,etiology,Afib) %>%
-  summarise(mean(NPPA),sd(NPPA))
+  summarise(mean(ht_in),sd(ht_in))
 
 
 
@@ -87,6 +93,8 @@ genes <- read_csv('20201027/geneData.csv')
 
 dim(genes)
 dim(df)
+
+
 
 df %>% filter(id %in% genes$sampid)
 #We can use the "not" in front and retirn the not matching
@@ -102,27 +110,51 @@ dim(merge.left)
 
 
 # long data ---------------------------------------------------------------
-pivot_longer(merge.inner,
-             Gene1:Gene10
+# Part of tidyr package, use to be called gather and spread
+
+#Go from wide to long, the cols defines which varaibles to pivot,in our case the 
+#genes, we know have 2 variables, one for genes and one for expression. 
+#We know have a dataset that is no longer one observation per sample but rather
+#an observation for each gene per sample. 
+tmp <- pivot_longer(merge.inner,
+             cols=Gene1:Gene10
 )
 
+
+# Same as before but we give names to the 2 new labels to the variables we created.
 merge.long <- pivot_longer(merge.inner,
-             Gene1:Gene10,
+             cols=Gene1:Gene10,
              names_to='gene',
              values_to='UMI'
 )
 
+#now we can summarize the all the genes quite easily. 
 
-
-merge.long %>% 
+summ <- merge.long %>% 
   group_by(etiology,gene) %>%
   summarise(mean=mean(UMI),
             sd=sd(UMI),
-            min(UMI),
-            max(UMI)
+            min=min(UMI),
+            max=max(UMI)
             )
 
+#We can pivot the summary table to a more human readable version. 
 
+pivot_wider(summ, names_from = c(etiology), values_from = c(mean,sd,max,min))
+
+
+
+#We can plot long data nicely as well. 
+
+ggplot(merge.long,aes(x=etiology,y=UMI,fill=etiology)) + geom_boxplot() + facet_grid(~gene)
+
+#We can even pipe to ggplot as well. 
+
+pivot_longer(merge.inner,
+                           Gene1:Gene10,
+                           names_to='gene',
+                           values_to='UMI') %>%
+  ggplot(aes(x=etiology,y=UMI,fill=etiology)) + geom_boxplot() + facet_grid(~gene)
 
 
 
