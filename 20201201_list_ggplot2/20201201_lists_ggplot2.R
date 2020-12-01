@@ -1,5 +1,9 @@
 library(tidyverse)
 library(patchwork)
+install.packages('ggsci')
+install.packages("wesanderson")
+library(ggsci)
+library(wesanderson)
 
 
 #How to write a function 
@@ -105,7 +109,7 @@ map(c.list,mean)
 #Back to ggplot! 
 
 #read in data, make sure you alter this to your path
-data <- read_csv('20201201/data.csv')
+data <- read_csv('20201201_list_ggplot2/data.csv')
 
 
 
@@ -166,15 +170,6 @@ ggplot(data,aes(x=etiology,y=BMI,color=sex)) +
 
 
 
-
-#Better colors
-# https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/
-
-install.packages('ggsci')
-install.packages("wesanderson")
-library(ggsci)
-library(wesanderson)
-
 ggplot(data,aes(x=etiology,y=BMI,color=sex)) + 
   geom_boxplot() + 
   geom_jitter(position=position_jitterdodge(0.2)) +
@@ -228,11 +223,6 @@ wrap_plots(plots.list) + plot_annotation(tag_levels = 'A')
 
 plots.list$A + (plots.list$B/plots.list$C) + 
   plot_annotation(tag_levels = 'A')
-
-
-
-
-
 
 
 
