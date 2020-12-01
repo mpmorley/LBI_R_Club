@@ -15,4 +15,5 @@ Meeting time Tuesdays @ 4pm
 + [Statquest](https://statquest.org/)
 + [R cheactsheets](https://rstudio.com/resources/cheatsheets/)
 + [Bioconductor](https://www.bioconductor.org/)
++ [R Color Palettes](https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/)
 
