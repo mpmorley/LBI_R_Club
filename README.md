@@ -13,7 +13,8 @@ Meeting time Thursday @ 3pm
 + [biostars](https://www.biostars.org/)
 + [stackoverflow](https://stackoverflow.com/)
 + [Statquest](https://statquest.org/)
-+ [R cheactsheets](https://rstudio.com/resources/cheatsheets/)
++ [R cheatsheets](https://rstudio.com/resources/cheatsheets/)
 + [Bioconductor](https://www.bioconductor.org/)
 + [R Color Palettes](https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/)
++ [R Color Cheatsheat](https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf)
 
