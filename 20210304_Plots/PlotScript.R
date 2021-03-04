@@ -3,7 +3,7 @@
 # 
 #
 ############################################################################
-
+library(ggsci)
 library(patchwork)
 library(tidyverse)
 
@@ -15,7 +15,9 @@ ggplot(iris, aes(x=Sepal.Length,y=Sepal.Width,color=Species)) +
   geom_point()
 
 ggplot(iris, aes(x=Sepal.Length,y=Sepal.Width,color=Species)) + 
-  geom_point() +  theme_bw() +  
+  geom_point() + 
+  scale_color_aaas() +
+  theme_bw() +  
   theme(plot.title = element_text(size = 20),  
         strip.text = element_text(size=18),  
         axis.text = element_text(size=15),  
@@ -23,6 +25,11 @@ ggplot(iris, aes(x=Sepal.Length,y=Sepal.Width,color=Species)) +
         legend.position="bottom",  
         legend.text=element_text(size=15),  
         legend.title=element_text(size=18)) 
+
+
+
+
+
   
   
 
@@ -44,27 +51,38 @@ theme_ppt <- function(legend=TRUE){
 
 
 ggplot(iris, aes(x=Sepal.Length,y=Sepal.Width,color=Species)) + 
-  geom_point() + theme_ppt()
+  geom_point() + 
+  scale_color_aaas() +
+  theme_ppt()
 
 ggplot(iris, aes(x=Sepal.Length,y=Sepal.Width,color=Species)) + 
-  geom_point() + theme_ppt(legend = F)
+  geom_point() +
+  scale_color_aaas() +
+  theme_ppt(legend = F)
 
 
 
 #We can also set the theme for all the plots. 
-theme_set(theme_gray())
+
 plot1 <- ggplot(iris, aes(x=Sepal.Length,y=Sepal.Width,color=Species)) + 
-  geom_point() + theme_ppt()
+  scale_color_aaas() +
+  geom_point() + 
+  theme_ppt()
+
 plot1
 
 ggsave("plot1.png", plot, height=plotHt, width=plotWd)
 
+#or with ggsave it save the current plot if we don't give it one. 
 
-# Make a 2nd slide with 2 plots -------------------------------------------
+ggsave("plot1.png", height=plotHt, width=plotWd)
 
+
+# Make a 2nd slide with 2 plots with patchwork  -------------------------------------------
+#Notice I'm not applying the theme yet or aaas color 
 
 plot2 <- ggplot(iris, aes(y=Sepal.Length,x=Species,color=Species)) + 
-  geom_jitter(width = .2)
+  geom_jitter(width = .2) 
 plot2
 
 
@@ -73,7 +91,7 @@ plot3 <- ggplot(iris, aes(y=Sepal.Length,x=Species)) +
   geom_jitter(aes(color=Species),width = .2) 
 plot3
 
-
+str(plot2)
 #Let's add 2 plot together using patchwork. 
 
 plot2 + plot3
@@ -81,7 +99,9 @@ plot2 + plot3
 #Let's save it as a patchwork object now, pw is patchwork not ggplot2
 
 pw <- plot2 + plot3
-pw
+
+#Let's see what kind of object pw is?
+str(pw)
 
 #Let's add some annotation 
 
@@ -95,7 +115,6 @@ pw + plot_annotation(tag_levels='I')
 
 
 
-
 #Let's collect the legends into one. 
 pw + plot_layout(guides='collect') 
 
@@ -104,7 +123,8 @@ pw + plot_layout(guides='collect')
 # Patchwork & operator. 
 
 pw <- pw + plot_annotation(tag_levels='A') + plot_layout(guides='collect') &
-  theme_ppt()
+  scale_color_aaas() &
+  theme_ppt() 
 pw
 ggsave("plot2.png",pw, height=plotHt, width=plotWd)
 
@@ -123,7 +143,9 @@ ggsave("plot3_2x2_hires.png", height=2, width=2,dpi=600)
 #We have to change point size and also relative font size
 ggplot(iris, aes(y=Sepal.Length,x=Species)) + 
   geom_boxplot(alpha=0) + 
-  geom_jitter(size=.25,aes(color=Species),width = .2) + theme_bw(9)
+  geom_jitter(size=.25,aes(color=Species),width = .2) + 
+  scale_color_aaas() +
+  theme_bw(9)
 ggsave("plot3_2x2_ptsize.png", height=2, width=2)
 
 
@@ -132,7 +154,9 @@ ggsave("plot3_2x2_ptsize.png", height=2, width=2)
 
 ggplot(iris, aes(y=Sepal.Length,x=Species)) + 
   geom_boxplot(alpha=0) + 
-  geom_jitter(size=.25,aes(color=Species),width = .2) + theme_bw(9)
+  geom_jitter(size=.25,aes(color=Species),width = .2) + 
+  scale_color_aaas() +
+  theme_bw(9)
 
 ggsave("plot3_2x2_ptsize.pdf", height=2, width=2)
 
