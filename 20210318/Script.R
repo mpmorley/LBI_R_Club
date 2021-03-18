@@ -1,12 +1,11 @@
 library(tidyverse)
 
-
-
+n=100
 
 data <- data.frame(sample= paste0('sample',1:n),
                    gender=sample(c('F','M'),100,replace = T),
                    status=c(rep('Donor',40),rep('COPD',20), rep("IPF", 40)),
-                   age = runif(20,min=40,80),
+                   age = runif(100,min=40,max=80),
                    pop=c(rep('CEU',35),rep('GBR',9), rep("CHB", 11),rep("CHS",4),rep('FIN',6),rep('ASW',7),rep('YRI',18),rep('LWK',10)),
                    RGN1 = rnorm(n, mean = 12),
                    RGN2 = rnorm(n, mean = 6),
@@ -19,6 +18,17 @@ data <- data.frame(sample= paste0('sample',1:n),
 summary(data)
 
 
+tmp <- c('a','c','a','d')
+
+
+factor(tmp, levels=c('c','d','a'))
+
+
+factor(tmp)
+
+as.factor(tmp)
+
+
 #Let's make the data "longer" 
 
 data.lg <- pivot_longer(data,cols=RGN1:ASP3,names_to = 'gene',values_to = 'expression')
@@ -28,13 +38,14 @@ data.lg <- pivot_longer(data,cols=RGN1:ASP3,names_to = 'gene',values_to = 'expre
 data.lg %>% mutate(status = as.factor(status))
 
 
+
 data.lg <- data.lg %>% mutate_at(c('status','pop','gender'),as.factor)
+data.lg
+
 
 
 ggplot(data.lg,aes(x=gene,y=expression)) + geom_boxplot() + theme_bw()
 
-
-#Let's arrange the manually. 
 
 
 
@@ -51,14 +62,18 @@ data.lg %>% mutate(gene=fct_reorder(gene, expression,.desc=TRUE)) %>%
 
 #manul reorder. 
 
+data.lg %>% mutate(gene=fct_relevel(gene, "RGN1","RGN2" )) 
 
-fct_relevel(f, "a", after = 2)
-data.lg %>% mutate(gene=fct_relevel(gene, "RGN1","RGN2" )) %>%
+
+
+
+
+data.lg %>% mutate(gene=fct_relevel(gene, "RGN1" )) %>%
   ggplot(aes(x=gene,y=expression)) + geom_boxplot() + theme_bw()
 
 
-fct_relevel(f, "a", after = 2)
-data.lg %>% mutate(gene=fct_relevel(gene, "YFG1",after=1)) %>%
+
+data.lg %>% mutate(gene=fct_relevel(gene, "YFG1",after=3)) %>%
   ggplot(aes(x=gene,y=expression)) + geom_boxplot() + theme_bw()
 
 
@@ -66,6 +81,9 @@ data.lg %>% mutate(gene=fct_relevel(gene, "YFG1",after=1)) %>%
 
 
 #Plot by pop 
+
+data %>% count(pop)
+
 
 
 data.lg %>% mutate(gene=fct_reorder(gene, expression,.desc=TRUE)) %>%
