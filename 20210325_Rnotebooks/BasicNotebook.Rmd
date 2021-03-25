@@ -1,0 +1,295 @@
+---
+title: "R Notebook"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_float: yes
+    theme: spacelab
+    highlight: zenburn
+  word_document:
+    toc: yes
+---
+
+# Markdown Basics
+
+For commentary we just write like this!
+
+
+## Headers 
+
+Created using \# I can "escape" the header by using the forward slash in front of the character I wish to escape. 
+
+\# Header1
+
+\## Header 2
+
+\## Header 3
+
+
+
+## Text Formatting
+
+This is *italic*
+
+This is **bold** 
+
+This is ***bold-italic***
+
+This is a superscript^2^
+
+This is a ~~strikethrough~~
+
+## Links
+
+This is a link [R Markdown cheatsheet](https://rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf) 
+
+## Lists
+
+We can created ordered lists 
+
+1. Item 1 
+2. Item 2
+
+unordered list
+
+* Item 
+* another one
+  + Sub item
+    + Another sub
+
+## Equations 
+
+Can create Equations as well, equations are define by the 2 \$$  
+
+$$
+E = mc^2
+$$
+
+
+$$
+\sqrt{p}
+$$
+
+$$
+Y \sim X\beta_0 + X\beta_1 + \epsilon
+$$
+
+# Working with Code
+
+## Load Packages
+
+```{r Load packages, message=FALSE}
+library(tidyverse)
+```
+
+
+
+## Read in Data
+*Warning* With notebooks your working directory will always be the directory in which you save you Notebook file too. If you change you working dir, you will need to do so for each code block. 
+
+
+```{r}
+data <- read_csv('Testdata.csv')
+
+```
+
+## Read in Data
+Now we will suppress the message again
+```{r Read Data, message=FALSE}
+data <- read_csv('Testdata.csv')
+```
+
+## Transform Data
+
+Use the Tidyr function **pivot_longer** to convert from a wide format to a long format. 
+We convert all the genes cols into a name/value pair. The name being the gene and the value being the gene expression value. 
+
+```{r pivot longer, message=FALSE, warning=FALSE}
+data.lg <- pivot_longer(data,cols=RGN1:ASP3,names_to = 'gene',values_to = 'expression')
+
+```
+
+## Factors
+Convert multiple columns to a factor using **mutate_at** 
+```{r factors}
+data.lg <- data.lg %>% mutate_at(c('status','pop','gender'),as.factor)
+```
+
+
+## View Data
+```{r view data}
+data.lg
+```
+
+
+## Plot Data
+
+### Default
+
+```{r plot}
+ggplot(data.lg,aes(x=gene,y=expression)) + geom_boxplot() + theme_bw()
+
+```
+
+### Change Size
+
+```{r plot size, fig.height=3,fig.width=3}
+ggplot(data.lg,aes(x=gene,y=expression)) + geom_boxplot() + theme_bw()
+
+```
+
+### Change Alignment
+
+```{r plot align, fig.height=3,fig.width=3,fig.align='center'}
+ggplot(data.lg,aes(x=gene,y=expression)) + geom_boxplot() + theme_bw()
+
+```
+
+
+
+## Forcats
+Forcats is a tidyverse package for working with factors
+
+### fct_reorder
+Using the **fct_reorder** function we can order the genes by ascending gene expression
+Here we pipe the output of that transformation to ggplot statement. In this case we preserve the original factor. 
+
+```{r reorder}
+data.lg %>% mutate(gene=fct_reorder(gene, expression)) %>%
+  ggplot(aes(x=gene,y=expression)) + geom_boxplot() + theme_bw()
+
+```
+
+### fct_lump
+
+```{r lump factors}
+data.lg %>% mutate(pop = fct_lump(pop, n = 4)) %>% count(pop)
+
+```
+
+```{r}
+
+data.lg %>% mutate(gene=fct_reorder(gene, expression),
+                   pop = fct_lump(pop, n = 3)) %>%
+  ggplot(aes(x=gene,y=expression,color=pop)) + geom_boxplot() + theme_bw()
+
+```
+
+### fct_collapse
+
+```{r}
+data.lg %>% mutate(pop = fct_collapse(pop,
+                                      EUR = c('CEU','FIN','GBR'),
+                                      AFR = c('YRI','LWK','ASW'),
+                                      ASN = c('CHB','CHS')),
+                   gene=fct_reorder(gene, expression),
+                   ) %>%
+ggplot(aes(x=gene,y=expression,color=pop)) + geom_boxplot() + theme_bw()
+
+```
+
+# Output
+
+## Table of Contents
+
+```{r eval=FALSE}
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_float: yes
+---
+```
+
+## Formats
+
+### PDF
+
+You will need TeX installed 
+
+* Windows - [TinyTeX]https://yihui.org/tinytex/
+* MacOS - [MacTeX](http://www.tug.org/mactex/)
+
+
+
+```{r eval=FALSE}
+---
+title: "R Notebook"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_float: yes
+---
+```
+ 
+
+### Word 
+```{r eval=FALSE}
+---
+title: "R Notebook"
+output:
+  word_document:
+    toc: yes
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_float: yes
+
+---
+````
+
+
+## Aesthetics 
+
+For HTML output you can change the theme of the page by using themes from [Bootswatch](https://bootswatch.com/) The following are avaible
+
+* cerulean 
+* journal 
+* flatly 
+* darkly 
+* readable 
+* spacelab 
+* united 
+* cosmo 
+* lumen 
+* paper 
+* sandstone 
+* simplex 
+* yeti"
+
+
+We can also alter the syntax highlight themes as well. 
+
+* tango 
+* pygments 
+* kate 
+* monochrome 
+* espresso 
+* zenburn 
+* haddock 
+* breezedark 
+* textmate
+
+
+```{r,eval=FALSE}
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float: true
+    theme: spacelab
+    highlight: kate
+---
+
+```
+
