@@ -24,8 +24,8 @@ plot_ly(data= df[1:5,], x=~sample_name, y=~age, type="bar")
 
 df2=df[1:10,]
 #Grouped Barplot
-fig <- plot_ly(data= df2, x=~sample_name, y=~age, type="bar") 
-fig <- fig %>% add_trace(y = ~weight)
+fig <- plot_ly(data= df2, x=~sample_name, y=~age, type="bar", name="age") 
+fig <- fig %>% add_trace(y = ~weight,name="weight")
 fig <- fig %>% layout(yaxis = list(title = 'Count'), barmode = 'group')
 
 #Stacked barplot
@@ -62,7 +62,7 @@ data <- read.csv("20201201_list_ggplot2/data.csv")
 data = data %>% column_to_rownames(var = "id") %>% select(Gene1:Gene10) 
 plot_ly(z=as.matrix(data), type = "heatmap")
 
-plot_ly( y= colnames(data),z=as.matrix(data), type = "heatmap",colors = colorRamp(c("red", "green")))
+plot_ly(y= colnames(data),x= rownames(data),z=as.matrix(t(data)), type = "heatmap",colors = colorRamp(c("white", "blue")))
 
 #using plotly on ggplot
 gg=ggplot(data=df[1:5,], aes(x=sample_name, y=age, fill=gender)) + geom_bar(stat = "identity") + theme_minimal()
