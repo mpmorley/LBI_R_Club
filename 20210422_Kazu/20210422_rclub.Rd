@@ -1,18 +1,9 @@
 
-
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("tidyverse")
 library(tidyverse)
-
-#Create a vector of dirs we wish to make
-dirs <- c('bin','data','plots','results')
-
-#Create a function that makes a directory
-mkdir <- function(dir){
-  print(paste0('Creating ',dir,' Directory'))
-  dir.create(dir,showWarnings = F) 
-}
-
-map(dirs, mkdir)
-
+BiocManager::install("stringr")
 
 
 library(readxl)
@@ -31,6 +22,8 @@ class(adult)
 
 -----------------
 
+# standardization TMM (edgeR), RLE (DESeq/DESeq2)
+
 # standardization with edgeR
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
@@ -42,25 +35,30 @@ count <- as.matrix(adult[,2:5])
 vec <- as.vector(adult$SYMBOL)
 rownames(count) <- vec
 
+# make group object to recognize each group
 group <- factor(c("A", "A", "B", "B"))
+
+# Design "full model" matrix
 design <- model.matrix(~ group)
 design
 
+
+# analyze using edgeR
+# edgeR stores data in a simple list-based data object called a DGElist
+
 res <- DGEList(counts = count, group = group)
-
-------
-
-# calculate normalization factors
-res <- calcNormFactors(res)
+res <- calcNormFactors(res, method="TMM")  # calculate normalization factors
+# normalizes for RNA composition by determining a set of scaling factors for the library sizes that minimize the log-fold changes between samples
 res$samples
 
-# estimate dispersions
-res <- estimateDisp(res, design)
+res <- estimateDisp(res, design) # estimate dispersions using the designed matrix
+res <- estimateCommonDisp(res)
+res <- estimateTagwiseDisp(res)
 
-# low expressed genes
+norm_counts.table <- t(t(res$pseudo.counts)*(res$samples$norm.factors))
 
 
-# Evaluate
+# DEG analysis using edgeR
 fit <- glmFit(res, design)
 lrt <- glmLRT(fit, coef = 2)
 topTags(lrt)
@@ -70,35 +68,40 @@ topTags(lrt, 100, adjust.method="BH", sort.by="PValue")
 deg_lrt <- as.data.frame(topTags(lrt, n = nrow(count)))
 
 min_lfc = 1
-deg = decideTestsDGE(res, adjust.method="BH", p.value=0.01, lfc=min_lfc)
-de_tags = rownames(deg)[as.logical(de)]
+deg = decideTestsDGE(lrt, adjust.method="BH", p.value=0.01, lfc=min_lfc)
+de_tags = rownames(lrt)[as.logical(de)]
 
-# group <- data.frame(con = factor(c("AT1", "AT1", "AT2", "AT2")))
-# rownames(count) <- count[1:14709]
-# count <- as.matrix(count[,2:5])
 
 --------
 
-# limma
+# DEG detection by using limma
 library(limma)
 
-# dataframe into matrix
-count <- as.matrix(adult[,2:5])
-vec <- as.vector(adult$SYMBOL)
-rownames(count) <- vec
+count <- norm_counts.table
 
+# create design matrix
 data.cl <- c(rep(1, 2), rep(2, 2))
 design <- model.matrix(~ as.factor(data.cl))
+
+# estimate the fold changes and standard errors by fitting a linear model for each gene
 fit <- lmFit(count, design)
+
+# apply empirical Bayes smoothing to the standard errors.
 out <- eBayes(fit)
-p.value <- out$p.value[,ncol(design)]
-q.value <- p.adjust(p.value, method="BH")
-ranking <- rank(p.value)
+
+# p.value <- out$p.value[,ncol(design)]
+# q.value <- p.adjust(p.value, method="BH")
+# ranking <- rank(p.value)
 
 results <- topTable(out,coef=colnames(design)[ncol(design)], adjust="BH",number= nrow(count))
 
 write.table(results, "results.txt", sep="\t", append=F, quote=F, row.names=F)
 
+
+# dataframe into matrix
+# count <- as.matrix(adult[,2:5])
+# vec <- as.vector(adult$SYMBOL)
+# rownames(count) <- vec
 
 
 ---------
@@ -156,7 +159,10 @@ ego <-  enrichGO(
 
 
 ego.result <- ego@result
-write_csv(ego.result,file='GO_results.csv')
+write_csv(ego.result, file='GO_results.csv')
+
+write.table(ego.result, "GO_results.txt", sep="\t", append=F, quote=F, row.names=F)
+
 
 
 library(enrichplot)
@@ -210,7 +216,7 @@ gseaplot2(gse, geneSetID = 77, title = gse$Description[77])
 
 kk<-  enrichKEGG(
     gene      = gene.df$ENTREZID,
-    universe      = data$ENTREZID,
+    universe      = rawdata$ENTREZID,
     organism     = 'mmu',
     pvalueCutoff = 0.05,
     )
@@ -231,25 +237,28 @@ BiocManager::install("pathview")
 library(pathview)
 
 
-pathview(gene.data  = gene.df$ENTREZID,
+pathview(gene.data  = geneList,
          pathway.id =  "mmu04510",
          species    = "mmu",
-         limit      = list(gene=max(abs(gene.df$ENTREZID)), cpd=1))
+         limit      = list(gene=max(abs(geneList)), cpd=1))
 
 
 
 BiocManager::install("EnrichmentBrowser")
 
 ------------
-
+ 
+# if interested in genes included in the specific KEGG pathway
 http://www.gsea-msigdb.org/gsea/login.jsp
 
-library(readr)kegg_genes <- read_delim("Rclub/c2.cp.kegg.v7.4.symbols.gmt.txt", "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
+library(readr)
+kegg_genes <- read_delim("Rclub/c2.cp.kegg.v7.4.symbols.gmt.txt", "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 
 library(dplyr)
 focal_adhesion <- filter (kegg_genes, X1 == "KEGG_FOCAL_ADHESION")
 
 library(tidyverse)
+library(stringr)
 
 focal_adhesion <- str_to_title(focal_adhesion)
 focal_adhesion <- focal_adhesion [3:length(focal_adhesion)]
@@ -283,42 +292,4 @@ Heatmap(focal.scale,
         cluster_columns = T
 )
 
--------------
 
-BiocManager::install("gskb")
-library(gskb) 
-
-
-
-
-GO_results <- read_csv("Rclub/GO_results.csv")
-GTPase <- filter (GO_results, Description %in% "small GTPase mediated signal transduction")
-integrin <- filter (GO_results, Description %in% "integrin-mediated signaling pathway")
-
-GTPase <- str_split(integrin$geneID, pattern = "/")
-integrin <- str_split(integrin$geneID, pattern = "/")
-
-separate(integrin$geneID, sep="/")
-
-integrin_exp <- filter (adult, SYMBOL %in% integrin)
-
-integrin_exp_matrix <- as.matrix(integrin_exp[,2:5])
-vec <- as.vector(integrin_exp$SYMBOL)
-rownames(integrin_exp_matrix) <- vec
-integrin_exp_matrix = log2(integrin_exp_matrix)
-
-
-Heatmap(focal.scale,
-        name='Expression',
-        cluster_rows =T,
-        cluster_columns = T
-)
-
-
--------------
-
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install("DESeq2")
-
-library(DESeq2)
