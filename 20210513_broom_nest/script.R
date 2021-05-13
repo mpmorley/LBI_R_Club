@@ -53,6 +53,8 @@ tidy(wil.result)
 
 lm1.result <- lm(Gene1~gender,data = df)
 lm1.result
+summary(lm1.result)
+
 tidy(lm1.result)
 
 
@@ -61,7 +63,7 @@ tidy(lm1.result)
 lm2.result <- lm(Gene1~etiology+wt_kg+gender,data = df)
 
 summary(lm2.result)
-
+tidy(lm2.result)
 
 
 ### Now what if we wanted to test all genes. 
@@ -87,12 +89,12 @@ rbind(
 
 genenames <- colnames(df)[8:ncol(df)]
 genenames
-#create a Df to strore values 
-res.df <- data.frame
+#create a Df to store values 
+res.df <- data.frame()
 
 for(g in genenames){
   f <- as.formula(paste0(g,'~etiology+wt_kg+gender'))
-  res.df <-   cbind(data.frame(gene='gene3'),tidy(lm(f,data=df)))
+  res.df <- rbind(res.df,cbind(data.frame(gene=g),tidy(lm(f,data=df))))
 }
 
 
@@ -110,6 +112,8 @@ df %>% pivot_longer(names_to = 'gene',values_to='signal',cols = Gene1:Gene10)
 
 df.tmp <- df %>% pivot_longer(names_to = 'gene',values_to='signal',cols = Gene1:Gene10) %>%
   filter(gene=='Gene1')
+
+
 
 
 #I no longer need to know the name of the gene. 
@@ -160,6 +164,9 @@ df %>% pivot_longer(names_to = 'gene',values_to='signal',cols = Gene1:Gene10) %>
   filter(term=='etiologyNF')
 
 
+tmp <- 1
+
+map(tmp, ~mean(.x))
 
 
 #We can use this make plots as well.. Some 
@@ -181,6 +188,8 @@ plots <- df %>% pivot_longer(names_to = 'gene',values_to='signal',cols = Gene1:G
                      ggtitle(.y))
   )
 
+
+plots
   
 
 plots$plot[1]
@@ -190,7 +199,6 @@ plots
 #The ..1 is the first column 
 
 plots %>% select(gene,plot) %>%
-  
   pwalk(~ggsave(filename=paste0('20210513_broom_nest/',..1,'.png'),plot = ..2,width=6,height=5))
 
 
