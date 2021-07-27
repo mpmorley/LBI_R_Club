@@ -3,9 +3,12 @@
 
 The LBI R user club is a work space and presentation forum for anyone (undergrads, grad students, post-docs, research scientists, faculty, etc) to come and work on their R-related projects, talk to other R enthusiasts, troubleshoot and ultimately expand their knowledge of R. 
 
+If you would like to join please contact Michael Morley, mmorley@pennmedicine.upenn.edu
+
+
 ## When 
 
-We'll resume in the Fall 2021 
+We'll resume Fall 2021 
 
 ## Where
 
