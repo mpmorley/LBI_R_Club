@@ -1,6 +1,16 @@
-# LBI_R_Club
+# LBI R Club
+## What is R club?
 
-Meeting time Thursday @ 3pm
+The LBI R user club is a work space and presentation forum for anyone (undergrads, grad students, post-docs, research scientists, faculty, etc) to come and work on their R-related projects, talk to other R enthusiasts, troubleshoot and ultimately expand their knowledge of R. 
+
+## When 
+
+We'll resume in the Fall 2021 
+
+## Where
+
+Fall 2021 we'll stay 100% virtual. This format works very well for this group.
+
 
 ## R Resources
 
