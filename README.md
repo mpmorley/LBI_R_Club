@@ -8,11 +8,11 @@ If you would like to join please contact Michael Morley, mmorley@pennmedicine.up
 
 ## When 
 
-We'll resume Fall 2021 
+Sring 2024
 
 ## Where
 
-Fall 2021 we'll stay 100% virtual. This format works very well for this group.
+Every other Tues in Rm 11-121 at 10:30am
 
 
 ## R Resources
